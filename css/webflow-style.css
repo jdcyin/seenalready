@@ -2180,7 +2180,7 @@ figcaption {
   margin-top: 5px;
   margin-bottom: 30px;
   font-family: Libre Franklin, sans-serif;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 400;
   line-height: 18px;
 }
@@ -2616,7 +2616,7 @@ figcaption {
 
 .posts-collection-list-wrapper {
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex;
   display: flex;
 }
 
@@ -2629,7 +2629,7 @@ figcaption {
 }
 
 ._3-collection-item {
-  flex-wrap: wrap;
+  flex-wrap: flex;
   align-content: stretch;
   align-items: stretch;
   width: 33.3333%;
