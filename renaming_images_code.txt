@@ -1,0 +1,8 @@
+$counter = 1
+Get-ChildItem -Filter "*.jpg" | Sort-Object Name | ForEach-Object {
+    $newName = "01_{0:D2}.jpg" -f $counter
+    Rename-Item -Path $_.FullName -NewName $newName
+    $counter++
+}
+
+Renaming files to 01_01, 01_02... etc code 
