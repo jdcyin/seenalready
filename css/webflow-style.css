@@ -2599,6 +2599,7 @@ figcaption {
 
 .post-author-text.cc-small-thumbnail {
   margin-top: 0;
+  justify-content: center;
 }
 
 .post-author-text.cc-center {
