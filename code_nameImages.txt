@@ -1,0 +1,12 @@
+$files = Get-ChildItem -File | Sort-Object Name
+$counter = 1
+
+foreach ($file in $files) {
+    $ext = $file.Extension
+    $newName = "05_{0:D2}{1}" -f $counter, $ext
+    Rename-Item -Path $file.FullName -NewName $newName
+    $counter++
+}
+
+
+**change 05_ to make it correspond 
