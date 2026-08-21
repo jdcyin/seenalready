@@ -1,0 +1,93 @@
+---
+layout: base.njk
+title: Snapped — Seen Already
+permalink: /snapped/
+---
+{% set rolls = collections.posts | sort(attribute="data.date", reverse=true) %}
+{% set cams = collections.cameras | sort(attribute="data.order") %}
+{% set years = collections.posts | uniqueYears %}
+<div class="body">
+  <div class="pagelabel" style="padding-bottom: 6px;">Snapped</div>
+  <div class="pagelabel-sub">The archives</div>
+
+  {% if rolls.length %}
+    <div class="filterbar">
+      <div class="filter">
+        <label for="filter-film">Film</label>
+        <div class="select-wrap">
+          <select id="filter-film">
+            <option value="">All</option>
+            <option value="35mm">35mm</option>
+            <option value="120mm">120mm</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter">
+        <label for="filter-camera">Camera</label>
+        <div class="select-wrap">
+          <select id="filter-camera">
+            <option value="">All</option>
+            {% for cam in cams %}
+              <option value="{{ cam.data.slug }}">{{ cam.data.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="filter">
+        <label for="filter-year">Year</label>
+        <div class="select-wrap">
+          <select id="filter-year">
+            <option value="">All</option>
+            {% for y in years %}
+              <option value="{{ y }}">{{ y }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="cataloguegrid cataloguegrid-3" id="snapped-grid">
+      {% for roll in rolls %}
+        <a class="tile" href="{{ roll.url }}" data-camera="{{ roll.data.camera }}" data-film-format="{{ roll.data.filmFormat }}" data-year="{{ roll.data.date | year }}">
+          <div class="tile-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "25vw", roll %}</div>
+          <div class="tile-cap-main">{{ roll.data.date | formatDate(roll.data.endDate) }}</div>
+        </a>
+      {% endfor %}
+    </div>
+    <div class="empty" id="snapped-empty" style="display: none;">Oh Snap. Nothing matches those filters.</div>
+  {% else %}
+    <div class="empty">No rolls yet.</div>
+  {% endif %}
+
+  <div class="footer">
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var filmSel = document.getElementById('filter-film');
+    var cameraSel = document.getElementById('filter-camera');
+    var yearSel = document.getElementById('filter-year');
+    var tiles = document.querySelectorAll('#snapped-grid .tile');
+    var empty = document.getElementById('snapped-empty');
+    if (!filmSel) return;
+
+    function applyFilters() {
+      var film = filmSel.value, camera = cameraSel.value, year = yearSel.value;
+      var visible = 0;
+      tiles.forEach(function (tile) {
+        var match = (!film || tile.dataset.filmFormat === film) &&
+                    (!camera || tile.dataset.camera === camera) &&
+                    (!year || tile.dataset.year === year);
+        tile.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      empty.style.display = visible ? 'none' : 'block';
+    }
+
+    [filmSel, cameraSel, yearSel].forEach(function (el) {
+      el.addEventListener('change', applyFilters);
+    });
+  })();
+</script>

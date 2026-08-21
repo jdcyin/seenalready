@@ -1,0 +1,23 @@
+{
+  "name": "seenalready",
+  "version": "1.0.0",
+  "description": "A film photography blog",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/run-eleventy.mjs --serve",
+    "build": "node scripts/run-eleventy.mjs && node scripts/validate-content.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jdcyin/seenalready.git"
+  },
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/jdcyin/seenalready/issues"
+  },
+  "homepage": "https://github.com/jdcyin/seenalready#readme",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.0.0",
+    "@11ty/eleventy-img": "^5.0.0"
+  }
+}

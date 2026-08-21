@@ -1,0 +1,45 @@
+---
+layout: base.njk
+permalink: "/camera/{{ slug }}/"
+eleventyComputed:
+  title: "{{ name }} — Seen Already"
+  activeNav: "cameras"
+---
+{% set rolls = collections.postsByCamera[slug] | default([]) | sort(attribute="data.date", reverse=true) %}
+<div class="body body-featured">
+  <div class="pagelabel">{{ name }}</div>
+
+  {% if rolls.length %}
+    {% set top = rolls[0] %}
+    <div class="feature">
+      <a class="feature-img vign" href="{{ top.url }}">{% photo top.data.hero, top.data.date | formatDate(top.data.endDate), "50vw", top %}</a>
+      <div class="feature-body">
+        <a class="feature-date" href="{{ top.url }}">{{ top.data.date | formatDate(top.data.endDate) }}</a>
+        <a class="feature-btn" href="{{ top.url }}">SEE</a>
+      </div>
+    </div>
+
+    {% if rolls.length > 1 %}
+      <div class="section">
+        <div class="eyebrow">Recent</div>
+        <div class="grid">
+          {% for roll in rolls | arraySlice(1, 4) %}
+            <a class="card" href="{{ roll.url }}">
+              <div class="card-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "33vw", roll %}</div>
+              <div class="card-cap">
+                <div class="card-date">{{ roll.data.date | formatDate(roll.data.endDate) }}</div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty">No rolls yet.</div>
+  {% endif %}
+
+  <div class="footer">
+    <a class="archive-link" href="/snapped/">SNAPPED</a>
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>

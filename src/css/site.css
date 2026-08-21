@@ -1,0 +1,313 @@
+@import url('tokens.css');
+
+* { box-sizing: border-box; }
+
+/* Smooths the light/dark toggle into a fade rather than a hard snap. Deliberately scoped to
+   just these three properties (not a blanket `all`) so it can't quietly slow down unrelated
+   layout/opacity transitions declared elsewhere. */
+*, *::before, *::after {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Smooths navigation between pages (a plain multi-page site, so every link is a real
+   document load) in browsers that support it; browsers that don't just navigate normally. */
+@view-transition {
+  navigation: auto;
+}
+
+html, body { margin: 0; }
+
+html { background: var(--bg); }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+a { color: inherit; text-decoration: none; }
+
+/* Header: .hdr-full is plain document flow (it scrolls away like ordinary content — nothing
+   sticky about it). .hdr-compact-wrap is what's sticky; sitting right after .hdr-full in the
+   DOM means it only starts pinning to the top once .hdr-full has fully scrolled out — not at
+   an arbitrary scroll offset. .hdr-compact itself fades in via .is-visible (toggled by an
+   IntersectionObserver watching .hdr-full, see base.njk) so the pin reads as a gradual
+   reveal rather than an instant snap. */
+.hdr-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 36px 56px 26px;
+  background: var(--bg);
+}
+
+.logo { font-family: var(--display); font-weight: 800; font-size: 58px; }
+.logo:hover, .logo-sm:hover { color: var(--red); }
+
+.navrow { display: flex; align-items: center; gap: 40px; }
+.navitem { font-size: clamp(0.8rem, 0.65rem + 0.4vw, 1.15rem); color: var(--muted); }
+.navitem.active { color: var(--fg); }
+.navitem:hover { color: var(--red); }
+
+/* The compact bar is sticky, but its own box would otherwise leave a permanent gap between
+   .hdr-full and the page content below (it's invisible via opacity, not display:none, so it
+   still occupies its natural flow height at rest) — the negative margin cancels that out.
+   While the bar is actually stuck to the viewport top, it just overlays whatever has scrolled
+   beneath it, which is the normal/expected behavior for a sticky header. */
+.hdr-compact-wrap { position: sticky; top: 0; z-index: 30; margin-bottom: -56px; }
+
+.hdr-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 56px;
+  background: var(--bg);
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+.hdr-compact.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.hdr-compact-right { display: flex; align-items: center; gap: 16px; }
+
+.logo-sm { font-family: var(--display); font-weight: 800; font-size: 18px; }
+
+.hamburger { background: none; border: none; padding: 4px; cursor: pointer; color: var(--fg); }
+
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+.theme-toggle:hover { color: var(--red); }
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme='dark'] .theme-toggle .icon-sun { display: none; }
+:root[data-theme='dark'] .theme-toggle .icon-moon { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .theme-toggle .icon-sun { display: none; }
+  :root:not([data-theme='light']) .theme-toggle .icon-moon { display: block; }
+}
+
+.panel-full {
+  display: flex;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+  justify-content: center;
+  gap: 48px;
+  padding: 20px 0;
+  z-index: 5;
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.panel-full.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.panel-item { font-size: clamp(0.8rem, 0.65rem + 0.4vw, 1.15rem); color: var(--fg); }
+.panel-item:hover { color: var(--red); }
+
+/* Shared page furniture */
+.body { padding: 44px 56px 52px; }
+/* Featured template only (Home, a specific camera, a specific film stock) — a small nudge
+   in from the base .body padding. The feature card and the "Recent" grid share this same
+   container, so they always line up to the same width. */
+.body-featured { max-width: 1250px; margin: 0 auto; }
+.pagelabel { font-family: var(--display); font-weight: 800; font-size: 44px; text-align: center; padding: 0 0 40px; }
+.pagelabel-sub { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: center; padding: 0 0 40px; }
+.eyebrow { font-size: 17px; color: var(--muted); text-align: center; }
+
+.footer {
+  margin-top: 48px;
+  padding-top: 20px;
+  border-top: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.copy { font-size: 11px; color: var(--muted); }
+
+/* Hover vignette on every linked photo */
+.vign { position: relative; overflow: hidden; display: block; }
+.vign::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 46px 12px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+a:hover .vign::after, a.vign:hover::after { opacity: 1; }
+
+.feature-img, .card-img, .tile-img, .photoblock-img {
+  position: relative;
+  overflow: hidden;
+}
+.feature-img picture, .card-img picture, .tile-img picture, .photoblock-img picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.feature-img img, .card-img img, .tile-img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.photoblock-img img { display: block; width: 100%; height: auto; }
+
+/* Featured template: Home, a specific camera, a specific film stock. The image and text
+   sit together on a beige/panel card (featureshoot.com's actual treatment for its lead
+   story) — image ~1/3, text ~2/3, tight gap so they read as one connected unit. */
+.feature {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  margin-bottom: 56px;
+  background: var(--panel);
+}
+.feature-img { flex: 0 0 50%; aspect-ratio: 1 / 1; background: var(--border); }
+.feature-body { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 28px 30px; }
+/* These font sizes are fluid (clamp: min, viewport-scaled preferred, max) rather than fixed —
+   they should visibly grow/shrink as the browser window is resized, all the way from a phone
+   width up past typical desktop widths (the earlier version's vw coefficients were too small
+   to notice: the scaling range topped out well below normal window widths, so it looked static
+   even though clamp() was technically working). */
+.feature-date { font-family: var(--display); font-weight: 800; font-size: clamp(1.5rem, 1.2rem + 1vw, 3.2rem); line-height: 1.15; transition: color 0.15s ease; }
+.feature-date:hover { color: var(--red); }
+.feature-cam { font-size: clamp(0.85rem, 0.7rem + 0.5vw, 1.6rem); color: var(--muted); }
+/* The one real call-to-action pairing (roll page / full archive): resting black-on-white
+   (beige-on-black in dark mode) so the hover-to-red actually reads as a change, not a shift
+   between two already-similar warm tones. */
+.feature-btn, .archive-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: clamp(0.65rem, 0.5rem + 0.35vw, 1.1rem);
+  letter-spacing: 0.03em;
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  padding: 10px 20px;
+  background: none;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.feature-btn:hover, .archive-link:hover { color: var(--red); border-color: var(--red); }
+
+.section { display: flex; flex-direction: column; gap: 18px; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; }
+.card { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.card-img { width: 100%; aspect-ratio: 4 / 3; background: var(--border); }
+.card-cap { display: flex; flex-direction: column; gap: 2px; }
+.card-date { font-size: clamp(0.95rem, 0.7rem + 0.6vw, 1.8rem); font-weight: 700; transition: color 0.15s ease; }
+.card:hover .card-date { color: var(--red); }
+.card-cam { font-size: clamp(0.8rem, 0.6rem + 0.5vw, 1.5rem); color: var(--muted); }
+
+/* Catalogue template: /camera/, /film/, /film/<format>/ — deliberately narrower than the
+   full body width, so each tile reads as a smaller, more spaced-out square rather than a
+   near-full-bleed block. */
+/* /snapped/ filter bar — plain <select>s, custom-drawn to match the site rather than the
+   browser's native chrome. */
+.filterbar { display: flex; justify-content: center; gap: 28px; flex-wrap: wrap; margin: 0 0 44px; }
+.filter { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.filter label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-right: 1.3px solid var(--fg);
+  border-bottom: 1.3px solid var(--fg);
+  transform: translateY(-65%) rotate(45deg);
+  pointer-events: none;
+  transition: border-color 0.15s ease;
+}
+.select-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: var(--bg);
+  border: 1px solid var(--fg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 13px;
+  min-width: 150px;
+  padding: 9px 34px 9px 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+.select-wrap select:hover, .select-wrap select:focus { border-color: var(--red); outline: none; }
+.select-wrap:hover::after, .select-wrap:focus-within::after { border-color: var(--red); }
+
+.cataloguegrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 36px; max-width: 650px; margin: 0 auto; }
+.tile { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.tile-img { width: 100%; aspect-ratio: 1; background: var(--border); }
+.tile-cap-main { font-size: 18px; transition: color 0.15s ease; }
+.tile:hover .tile-cap-main { color: var(--red); }
+/* A lone trailing tile (odd total count) spans both columns and centers itself,
+   rather than sitting flush left. */
+.cataloguegrid .tile:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 18px);
+}
+/* /snapped/ specifically: 3 columns across a wider column, since it's the whole archive
+   rather than a handful of cameras/formats. */
+.cataloguegrid.cataloguegrid-3 { grid-template-columns: repeat(3, 1fr); max-width: 900px; }
+.cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(odd) { width: auto; }
+.cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(3n+1) {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(33.333% - 24px);
+}
+.empty { text-align: center; color: var(--muted); font-size: 14px; padding: 20px 0 10px; }
+
+/* Roll detail page */
+.idblock { text-align: center; padding-bottom: 34px; border-bottom: 2px solid var(--border); margin-bottom: 36px; }
+.post-date { font-family: var(--display); font-weight: 800; font-size: 32px; }
+.post-meta { display: flex; justify-content: space-between; align-items: center; max-width: 380px; margin: 16px auto 0; }
+.crumb { font-size: 13px; color: var(--muted); display: inline-block; }
+.crumb:hover { color: var(--red); }
+.post-film { font-size: 13px; color: var(--muted); display: inline-block; }
+.post-film:hover { color: var(--red); }
+
+.photostack { display: flex; flex-direction: column; gap: 40px; max-width: 760px; margin: 0 auto; }
+.photoblock-img { width: 100%; background: var(--border); }
+.caption { font-size: 15px; color: var(--muted); text-align: center; margin-top: 10px; }
+
+/* About page */
+.about-text { text-align: center; display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto; }
+.about-text p { font-family: var(--display); font-weight: 800; font-size: 21px; margin: 0; }
+.about-contact { font-family: var(--sans) !important; font-weight: 400 !important; font-size: 13px !important; color: var(--muted); margin-top: 6px !important; }
+.about-banner { width: 100%; margin-top: 44px; }
+.about-banner img { display: block; width: 100%; height: auto; }
+
+@media (max-width: 720px) {
+  .hdr-full, .hdr-compact, .body, .body-featured { padding-left: 24px; padding-right: 24px; }
+  .feature { flex-direction: column; }
+  .feature-img { flex-basis: auto; }
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .cataloguegrid, .cataloguegrid.cataloguegrid-3 { grid-template-columns: 1fr; max-width: 320px; }
+  .cataloguegrid .tile:last-child:nth-child(odd),
+  .cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(3n+1) { width: 100%; }
+  .logo { font-size: 38px; }
+}

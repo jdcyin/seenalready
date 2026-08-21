@@ -1,0 +1,29 @@
+---
+layout: base.njk
+permalink: "/camera/{{ camera }}/{{ number | pad2 }}/"
+eleventyComputed:
+  title: "{{ camera | cameraName(collections.cameras) }} — Seen Already"
+  activeNav: "cameras"
+---
+<div class="body">
+  <div class="idblock">
+    <div class="post-date">{{ date | formatDate(endDate) }}</div>
+    <div class="post-meta">
+      <a class="crumb" href="/camera/{{ camera }}/">📷 {{ camera | cameraName(collections.cameras) }}</a>
+      <a class="post-film" href="/film/{{ filmFormat }}/{{ filmStock | slugify }}/">{{ filmStock }} 🎞️</a>
+    </div>
+  </div>
+
+  <div class="photostack">
+    {% for photo in photos %}
+      <div>
+        <div class="photoblock-img">{% photo photo.src, photo.caption %}</div>
+        <div class="caption">{{ photo.caption }}</div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <div class="footer">
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>

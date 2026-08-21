@@ -1,0 +1,16 @@
+---
+layout: base.njk
+title: About — Seen Already
+permalink: /about/
+---
+{% set banner = (collections.posts | sort(attribute="data.date", reverse=true))[0] %}
+<div class="body" style="padding-bottom: 0;">
+  <div class="pagelabel">About</div>
+  <div class="about-text">
+    <p>A film photo collection.</p>
+    <p class="about-contact">For prints, email JY@seenalready.com</p>
+  </div>
+</div>
+{% if banner %}
+  <div class="about-banner">{% photo banner.data.hero, "Seen Already", "100vw", banner %}</div>
+{% endif %}

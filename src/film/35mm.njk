@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: 35mm — Seen Already
+permalink: /film/35mm/
+activeNav: film
+---
+{% set stocks35 = collections.filmStockList | whereFormat("35mm") %}
+<div class="body">
+  <div class="pagelabel">35mm</div>
+  {% if stocks35.length %}
+    <div class="cataloguegrid">
+      {% for stock in stocks35 %}
+        {% set top = stock.posts | sort(attribute="data.date", reverse=true) %}
+        <a class="tile" href="/film/35mm/{{ stock.stockSlug }}/">
+          <div class="tile-img vign">{% photo top[0].data.hero, stock.filmStock, "25vw", top[0] %}</div>
+          <div class="tile-cap-main">{{ stock.filmStock }}</div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">No rolls yet.</div>
+  {% endif %}
+  <div class="footer">
+    <a class="archive-link" href="/snapped/">SNAPPED</a>
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>

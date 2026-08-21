@@ -1,0 +1,25 @@
+---
+layout: base.njk
+title: Film — Seen Already
+permalink: /film/
+activeNav: film
+---
+{% set formats = ["35mm", "120mm"] %}
+<div class="body">
+  <div class="pagelabel">Film</div>
+  <div class="cataloguegrid">
+    {% for format in formats %}
+      {% set rolls = collections.posts | byFilmFormat(format) | sort(attribute="data.date", reverse=true) %}
+      <a class="tile" href="/film/{{ format }}/">
+        <div class="tile-img vign">
+          {% if rolls.length %}{% photo rolls[0].data.hero, format, "25vw", rolls[0] %}{% endif %}
+        </div>
+        <div class="tile-cap-main">{{ format }}</div>
+      </a>
+    {% endfor %}
+  </div>
+  <div class="footer">
+    <a class="archive-link" href="/snapped/">SNAPPED</a>
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>

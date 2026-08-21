@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or "Seen Already" }}</title>
+  <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/archivo-black.woff2" as="font" type="font/woff2" crossorigin>
+  <script>
+    // Runs before CSS paints so a saved theme choice never flashes the wrong one.
+    (function () {
+      var saved = localStorage.getItem('seenalready-theme');
+      if (saved) document.documentElement.setAttribute('data-theme', saved);
+    })();
+  </script>
+  <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+  <!-- Plain document flow, not sticky — scrolls away with the page like ordinary content. -->
+  <div class="hdr-full" id="hdr-full">
+    <a class="logo" href="/">Seen Already</a>
+    <nav class="navrow">
+      <a class="navitem{% if activeNav == 'cameras' %} active{% endif %}" href="/camera/">Cameras</a>
+      <a class="navitem{% if activeNav == 'film' %} active{% endif %}" href="/film/">Film</a>
+      <a class="navitem" href="/about/">About</a>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark theme">
+        <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="3.2"></circle><line x1="8" y1="0.5" x2="8" y2="2.3"></line><line x1="8" y1="13.7" x2="8" y2="15.5"></line><line x1="0.5" y1="8" x2="2.3" y2="8"></line><line x1="13.7" y1="8" x2="15.5" y2="8"></line><line x1="2.7" y1="2.7" x2="4" y2="4"></line><line x1="12" y1="12" x2="13.3" y2="13.3"></line><line x1="2.7" y1="13.3" x2="4" y2="12"></line><line x1="12" y1="4" x2="13.3" y2="2.7"></line></svg>
+        <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M14 9.5A6.2 6.2 0 1 1 6.5 2 5 5 0 0 0 14 9.5Z"></path></svg>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Sticky, sits right below .hdr-full so it only starts pinning to the top once
+       .hdr-full has fully scrolled past — that's what makes it "pop down" exactly when
+       the top matter is gone, not at some arbitrary scroll offset. Starts transparent
+       and fades in via IntersectionObserver (see script below) so the pin isn't an
+       instant snap. -->
+  <div class="hdr-compact-wrap">
+    <header class="hdr-compact" id="site-header">
+      <a class="logo-sm" href="/">Seen Already</a>
+      <div class="hdr-compact-right">
+        <button class="theme-toggle" id="theme-toggle-compact" aria-label="Toggle light/dark theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="3.2"></circle><line x1="8" y1="0.5" x2="8" y2="2.3"></line><line x1="8" y1="13.7" x2="8" y2="15.5"></line><line x1="0.5" y1="8" x2="2.3" y2="8"></line><line x1="13.7" y1="8" x2="15.5" y2="8"></line><line x1="2.7" y1="2.7" x2="4" y2="4"></line><line x1="12" y1="12" x2="13.3" y2="13.3"></line><line x1="2.7" y1="13.3" x2="4" y2="12"></line><line x1="12" y1="4" x2="13.3" y2="2.7"></line></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M14 9.5A6.2 6.2 0 1 1 6.5 2 5 5 0 0 0 14 9.5Z"></path></svg>
+        </button>
+        <button class="hamburger" id="hamburger-toggle" aria-label="Menu" aria-expanded="false">
+          <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.4">
+            <line x1="0" y1="1" x2="20" y2="1"></line>
+            <line x1="0" y1="7" x2="20" y2="7"></line>
+            <line x1="0" y1="13" x2="20" y2="13"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+    <div class="panel-full" id="nav-panel">
+      <a class="panel-item" href="/camera/">Cameras</a>
+      <a class="panel-item" href="/film/">Film</a>
+      <a class="panel-item" href="/about/">About</a>
+    </div>
+  </div>
+
+  {{ content | safe }}
+
+  <script>
+    (function () {
+      var fullHeader = document.getElementById('hdr-full');
+      var compact = document.getElementById('site-header');
+      var toggle = document.getElementById('hamburger-toggle');
+      var panel = document.getElementById('nav-panel');
+
+      function closePanel() {
+        panel.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      // Fades the compact bar in only once .hdr-full has fully left the viewport (and back
+      // out once it's back in view) — a real "has it disappeared" check via IntersectionObserver,
+      // not a guessed scrollY threshold, so it can't misfire on odd page heights or resizes.
+      var observer = new IntersectionObserver(function (entries) {
+        var fullHeaderVisible = entries[0].isIntersecting;
+        compact.classList.toggle('is-visible', !fullHeaderVisible);
+        if (fullHeaderVisible) closePanel();
+      }, { threshold: 0 });
+      observer.observe(fullHeader);
+
+      toggle.addEventListener('click', function () {
+        var open = panel.classList.toggle('is-open');
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+
+      function currentTheme() {
+        var explicit = document.documentElement.getAttribute('data-theme');
+        if (explicit) return explicit;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      function toggleTheme() {
+        var next = currentTheme() === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('seenalready-theme', next);
+      }
+      document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+      document.getElementById('theme-toggle-compact').addEventListener('click', toggleTheme);
+    })();
+  </script>
+</body>
+</html>
