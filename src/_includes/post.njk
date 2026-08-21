@@ -2,7 +2,7 @@
 layout: base.njk
 permalink: "/camera/{{ camera }}/{{ number | pad2 }}/"
 eleventyComputed:
-  title: "{{ camera | cameraName(collections.cameras) }} — Seen Already"
+  title: "seenalready: {{ camera | cameraName(collections.cameras) }}"
   activeNav: "cameras"
 ---
 <div class="body">

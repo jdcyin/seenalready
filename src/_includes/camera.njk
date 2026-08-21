@@ -2,7 +2,7 @@
 layout: base.njk
 permalink: "/camera/{{ slug }}/"
 eleventyComputed:
-  title: "{{ name }} — Seen Already"
+  title: "seenalready: {{ name }}"
   activeNav: "cameras"
 ---
 {% set rolls = collections.postsByCamera[slug] | default([]) | sort(attribute="data.date", reverse=true) %}

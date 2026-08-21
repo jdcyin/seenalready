@@ -6,7 +6,7 @@ pagination:
   alias: stock
 permalink: "/film/{{ stock.format }}/{{ stock.stockSlug }}/"
 eleventyComputed:
-  title: "{{ stock.filmStock }} — Seen Already"
+  title: "seenalready: {{ stock.filmStock }}"
   activeNav: "film"
 ---
 {% set rolls = stock.posts | sort(attribute="data.date", reverse=true) %}

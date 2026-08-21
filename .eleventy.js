@@ -30,6 +30,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy('CNAME');
   eleventyConfig.addPassthroughCopy('src/css');
   eleventyConfig.addPassthroughCopy('src/fonts');
+  eleventyConfig.addPassthroughCopy('src/favicon.ico');
 
   eleventyConfig.addFilter('formatDate', formatDate);
   eleventyConfig.addFilter('slugify', slugify);
