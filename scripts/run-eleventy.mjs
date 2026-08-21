@@ -9,15 +9,42 @@
 // falling back to that known location if the normal local resolution comes up empty.
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 
 const require = createRequire(import.meta.url);
 
 const FALLBACK_NODE_MODULES = 'C:\\Users\\jdcyin\\Documents\\seenalready-node_modules-build\\node_modules';
 
+// eleventy's package.json "exports" map only exposes "." and "./UserConfig" — a direct
+// require.resolve('@11ty/eleventy/cmd.cjs') is blocked by Node regardless of whether the
+// file exists on disk. So resolve the allowed "." entry first, then walk up to the package
+// root (the directory whose package.json is actually named "@11ty/eleventy") and join
+// cmd.cjs from there — that stays valid even if eleventy's internal src/ layout changes.
+function findPackageRoot(fileInPackage, packageName) {
+  let dir = dirname(fileInPackage);
+  while (true) {
+    const pkgJsonPath = join(dir, 'package.json');
+    if (existsSync(pkgJsonPath)) {
+      try {
+        if (JSON.parse(readFileSync(pkgJsonPath, 'utf8')).name === packageName) return dir;
+      } catch {
+        // Malformed package.json above us in the tree — keep walking up.
+      }
+    }
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
 function resolveEleventyCli() {
   try {
-    return { cmdPath: require.resolve('@11ty/eleventy/cmd.cjs'), nodePath: process.env.NODE_PATH || '' };
+    const pkgRoot = findPackageRoot(require.resolve('@11ty/eleventy'), '@11ty/eleventy');
+    const cmdPath = pkgRoot && join(pkgRoot, 'cmd.cjs');
+    if (cmdPath && existsSync(cmdPath)) {
+      return { cmdPath, nodePath: process.env.NODE_PATH || '' };
+    }
   } catch {
     // Fall through to the external node_modules.
   }
