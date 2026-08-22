@@ -263,6 +263,7 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
 .tile-img { width: 100%; aspect-ratio: 1; background: var(--border); }
 .tile-cap-main { font-size: 18px; transition: color 0.15s ease; }
 .tile:hover .tile-cap-main { color: var(--red); }
+#snapped-grid .tile-cap-main { font-weight: 700; }
 /* A lone trailing tile (odd total count) spans both columns and centers itself,
    rather than sitting flush left. */
 .cataloguegrid .tile:last-child:nth-child(odd) {
@@ -297,7 +298,7 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
 /* About page */
 .about-text { text-align: center; display: flex; flex-direction: column; gap: 10px; max-width: 520px; margin: 0 auto; }
 .about-text p { font-family: var(--display); font-weight: 800; font-size: 21px; margin: 0; }
-.about-contact { font-family: var(--sans) !important; font-weight: 400 !important; font-size: 13px !important; color: var(--muted); margin-top: 6px !important; }
+.about-contact { font-family: var(--sans) !important; font-weight: 400 !important; font-size: 15px !important; color: var(--muted); margin-top: 6px !important; }
 .about-banner { width: 100%; margin-top: 44px; }
 .about-banner img { display: block; width: 100%; height: auto; }
 
