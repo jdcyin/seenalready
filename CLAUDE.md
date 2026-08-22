@@ -153,9 +153,9 @@ Two page shapes cover the whole site (see Information architecture) — everythi
 
 ## Git workflow
 
-- Active work happens on the **`seenaleady-new`** branch, not `main`.
-- `main` is only touched via an explicit, user-approved merge once the rebuild is verified end-to-end (see the rebuild plan's Phasing section).
-- Push to `main` is what triggers the GitHub Actions deploy — so nothing reaches the live site until that merge happens.
+- The 11ty rebuild is complete and merged. Routine work (new rolls, small fixes) commits and pushes directly to **`main`** once the build and `validate-content.js` pass cleanly — no separate feature branch or merge-approval step needed for day-to-day changes.
+- Push to `main` triggers the GitHub Actions deploy, so a push reaches the live site within a few minutes.
+- The `seenaleady-new` branch (used for the rebuild itself) is no longer active; a genuinely large/risky change can still use a feature branch if it warrants extra review before going live.
 
 ## Explicit non-goals
 
