@@ -7,13 +7,13 @@ activeNav: cameras
 {% set cams = collections.cameras | sort(attribute="data.order") %}
 <div class="body">
   <div class="pagelabel">Cameras</div>
-  <div class="cataloguegrid">
+  {# Each tile is a line etching of the camera, traced from its product photo by
+     scripts/prep-images.mjs. The PNG is used as a CSS mask over var(--fg), so the lines
+     follow the theme (black / beige) and pick up the hover color. #}
+  <div class="etchgrid">
     {% for cam in cams %}
-      {% set rolls = collections.postsByCamera[cam.data.slug] | default([]) | sort(attribute="data.date", reverse=true) %}
-      <a class="tile" href="{{ cam.url }}">
-        <div class="tile-img vign">
-          {% if rolls.length %}{% photo rolls[0].data.hero, cam.data.name, "25vw", rolls[0] %}{% endif %}
-        </div>
+      <a class="etchtile" href="{{ cam.url }}">
+        <div class="etch" role="img" aria-label="Drawing of the {{ cam.data.name }}" style="--etch: url('/img/etch/{{ cam.data.slug }}.png')"></div>
         <div class="tile-cap-main">{{ cam.data.name }}</div>
       </a>
     {% endfor %}
@@ -21,5 +21,7 @@ activeNav: cameras
   <div class="footer">
     <a class="archive-link" href="/snapped/">SNAPPED</a>
     <div class="copy">© {{ currentYear }} Seen Already</div>
+    {# The drawings' source photos are CC-licensed — attribution lives on /credits/. #}
+    <a class="credits" href="/credits/">Image credits</a>
   </div>
 </div>

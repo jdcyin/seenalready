@@ -1,0 +1,33 @@
+{
+  "_comment": "Film photos (cut-outs at src/film/canisters/<key>.png, made with `node scripts/prep-images.mjs canister <photo> <key>`). generic-35mm / generic-120mm are the /film/ tiles and the stand-in for any stock without its own photo; other keys are film-stock slugs (slugify(filmStock)). label names the photo in the credit line. credit/license/source are required for third-party photos; omit all three for your own.",
+  "generic-35mm": {
+    "label": "35mm",
+    "credit": "Evan-Amos",
+    "license": "public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Kodak-Max-400-35mm-Film.jpg"
+  },
+  "generic-120mm": {
+    "label": "120",
+    "credit": "Thomas Wydra",
+    "license": "public domain",
+    "source": "https://commons.wikimedia.org/wiki/File:Rollfilm_120.jpg"
+  },
+  "kodak-ektar-100": {
+    "label": "Kodak Ektar 100",
+    "credit": "El Grafo",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kodak_Ektar_100_135_film_cartridge_(01).jpg"
+  },
+  "kodak-400": {
+    "label": "Kodak 400",
+    "credit": "El Grafo",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kodak_Ultramax_400_135_film_cartridge.jpg"
+  },
+  "kentmere-pan-400-bw": {
+    "label": "Kentmere 400",
+    "credit": "El Grafo",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Kentmere_400_135_film_cartridge_01.jpg"
+  }
+}

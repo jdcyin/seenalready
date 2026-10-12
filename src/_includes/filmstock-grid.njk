@@ -1,0 +1,23 @@
+{#- Film-stock tiles for /film/<format>/ — expects `format` ("35mm" | "120mm") to be set.
+    Uses the stock's own canister photo when src/_data/canisters.json lists one, else the
+    format's generic photo (generic-<format>). -#}
+{% set stocks = collections.filmStockList | whereFormat(format) %}
+{% if stocks.length %}
+  <div class="etchgrid">
+    {% asyncEach stock in stocks %}
+      {% set own = canisters[stock.stockSlug] %}
+      {% set image = stock.stockSlug if own else "generic-" + format %}
+      {% set tile = {
+        href: "/film/" + format + "/" + stock.stockSlug + "/",
+        label: stock.filmStock,
+        image: image,
+        alt: stock.filmStock + " film",
+        rolls: stock.posts | sort(attribute="data.date", reverse=true),
+        wide: format == "120mm" and not own
+      } %}
+      {% include "filmtile.njk" %}
+    {% endeach %}
+  </div>
+{% else %}
+  <div class="empty">No rolls yet.</div>
+{% endif %}

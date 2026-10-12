@@ -26,6 +26,8 @@
   --cta: oklch(0.3 0.08 322);
   --red: oklch(0.55 0.22 25);
   --panel: oklch(0.965 0.015 85);
+  /* Pale stand behind film-canister cut-outs, near the studio backdrop they were shot on. */
+  --plate: oklch(0.93 0 0);
 }
 
 :root:not([data-theme='light']) {
@@ -38,6 +40,7 @@
     --cta: oklch(0.62 0.1 322);
     --red: oklch(0.65 0.2 25);
     --panel: oklch(0.16 0.015 85);
+    --plate: oklch(0.84 0.01 85);
   }
 }
 
@@ -50,4 +53,5 @@
   --cta: oklch(0.62 0.1 322);
   --red: oklch(0.65 0.2 25);
   --panel: oklch(0.16 0.015 85);
+  --plate: oklch(0.84 0.01 85);
 }

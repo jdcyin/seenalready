@@ -1,0 +1,21 @@
+{#- Attribution for the third-party film photos on a page. Expects either `creditKeys` (a list
+    of src/_data/canisters.json keys shown) or `format`, in which case it works out what
+    filmstock-grid.njk showed for that format. Entries without a credit (your own photos) are
+    skipped. -#}
+{% if not creditKeys %}
+  {% set creditKeys = [] %}
+  {% for stock in collections.filmStockList | whereFormat(format) %}
+    {% set key = stock.stockSlug if canisters[stock.stockSlug] else "generic-" + format %}
+    {% if creditKeys.indexOf(key) < 0 %}{% set creditKeys = (creditKeys.push(key), creditKeys) %}{% endif %}
+  {% endfor %}
+{% endif %}
+{% set credited = [] %}
+{% for key in creditKeys %}
+  {% if canisters[key] and canisters[key].credit %}{% set credited = (credited.push(key), credited) %}{% endif %}
+{% endfor %}
+{% if credited.length %}
+  <div class="credits">
+    Film photos via Wikimedia Commons:
+    {% for key in credited %}{% set c = canisters[key] %}<a href="{{ c.source }}">{{ c.label }}</a> by {{ c.credit }}, {{ c.license }}{% if not loop.last %} · {% endif %}{% endfor %}
+  </div>
+{% endif %}

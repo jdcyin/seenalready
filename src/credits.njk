@@ -1,0 +1,22 @@
+---
+layout: base.njk
+title: "seenalready: Credits"
+permalink: /credits/
+---
+{#- Attribution for third-party images used as illustrations (Creative Commons licenses require
+    it). Linked from the /camera/ footer. Your own photos need no entry. -#}
+{% set cams = collections.cameras | sort(attribute="data.order") %}
+<div class="body">
+  <div class="pagelabel">Credits</div>
+  <div class="credits-page">
+    <p>The camera drawings are traced from these photos on Wikimedia Commons. Each drawing is shared under the same license as its source photo.</p>
+    <ul>
+      {% for cam in cams %}{% if cam.data.productCredit %}
+        <li>{{ cam.data.name }}: <a href="{{ cam.data.productSource }}">photo</a> by {{ cam.data.productCredit }}, {{ cam.data.productLicense }}</li>
+      {% endif %}{% endfor %}
+    </ul>
+  </div>
+  <div class="footer">
+    <div class="copy">© {{ currentYear }} Seen Already</div>
+  </div>
+</div>

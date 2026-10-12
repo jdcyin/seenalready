@@ -55,7 +55,9 @@ Directory-data-file pattern (11ty's mechanism for shared front matter across a f
 src/
   cameras/
     cameras.json          # { "tags": "cameras", "layout": "camera.njk" }
-    <camera-slug>.md       # front matter: name, slug, order, cardImage (optional)
+    <camera-slug>.md       # front matter: name, slug, order, productImage + productCredit/License/Source
+    img/<camera-slug>.jpg  # product photo the etching is traced from (scripts/prep-images.mjs)
+    etch/<camera-slug>.png # the /camera/ tile etching
   posts/
     posts.json              # { "tags": "posts", "layout": "post.njk" }
     <camera-slug>/
@@ -138,9 +140,15 @@ Direction settled and approved via a design-canvas exploration (mockups covered 
 Two page shapes cover the whole site (see Information architecture) — everything is one or the other, plus one unique roll-detail template. All content templating is Nunjucks — `.eleventy.js` explicitly sets `markdownTemplateEngine`/`htmlTemplateEngine` to `njk`, because 11ty's actual default for `.md` front matter is Liquid, not Nunjucks (a real gotcha hit during scaffolding: Liquid's filter-argument syntax is `filter: arg`, Nunjucks' is `filter(arg)` — they silently don't mix).
 
 - `src/_includes/base.njk` — `<head>`, the sticky/collapsing nav header (hamburger + full-width dropdown panel, plain vanilla JS), footer. Single source of truth for all of this; every page's `layout` chains through it.
-- **Catalogue template** — big centered page label + grid of square tiles (image + one-line label, no counts). Inlined directly in each page rather than factored into a shared layout file, since there are only four of them and each has a slightly different data source: `src/camera/index.njk`, `src/film/index.njk`, `src/film/35mm.njk`, `src/film/120mm.njk`, `src/snapped.njk` (the full archive uses the same tile grid).
+- **Catalogue template** — big centered page label + grid of tiles (image + one-line label, no counts). Inlined in each page rather than factored into one shared layout, since each has a different data source and tile treatment:
+  - `src/camera/index.njk` — **line etchings** (`.etchgrid`/`.etchtile`), three per row, short last row centered. Each etching is a PNG alpha mask painted with CSS `mask` + `background-color: var(--fg)`, so it follows the theme and turns red on hover. Traced from a third-party product photo (`productImage` etc. in the camera's front matter), all at the same gentle 3/4-from-the-left angle — keep that angle when replacing one.
+  - `src/film/index.njk`, `src/film/35mm.njk`, `src/film/120mm.njk` — square tiles of each format's / stock's latest roll hero photo (`.cataloguegrid`).
+  - **Parked, not yet wired in**: `filmtile.njk` + `filmstock-grid.njk` + `filmstock-credits.njk`, `src/_data/canisters.json`, `src/film/canisters/`, and the `.stocktile`/`.filmstrip` CSS — a canister-photo tile with a film strip that slides out on hover (frames = that stock's latest roll heroes). Waiting on the owner's own canister photos; to switch on, have `35mm.njk`/`120mm.njk` `{% include "filmstock-grid.njk" %}`. Any loop that includes `filmtile.njk` must be `{% asyncEach %}`, not `{% for %}` — a plain for silently drops tiles whose include runs the async `{% photo %}`.
+  - `src/snapped.njk` — the full archive, square photo tiles.
+- **Third-party photo credits**: images taken from someone else's CC-licensed photo (currently the camera etchings) need attribution — author, license, link. It lives on one page, `src/credits.njk` (`/credits/`), built from the camera front matter and linked as "Image credits" from the /camera/ footer; not inline under the images. Keep that page in sync when swapping images; your own photos need no entry.
 - **Featured template** — big centered page label (Home omits it) + one featured roll (square image, date/camera/Continue-reading button) + a "Recent" grid of 3 rectangular cards below. `src/index.njk` (Home), `src/_includes/camera.njk` (used as the `layout` for every `src/cameras/<slug>.md` shell — generates `/camera/<slug>/`), `src/film/stock.njk` (a pagination template over the `filmStockList` collection — generates `/film/<format>/<slug>/` for every distinct film stock).
 - `src/_includes/post.njk` — the roll detail page (`layout` for every `src/posts/<camera>/<NN>.md`): date header, inset camera/film row (with emoji), then a full-width stack of photos each with its own caption directly beneath (not a grid) — see "Date display format" above. Generates `/camera/<camera>/<NN>/`.
+  - **Print ordering**: each photo shows an "Order print" button on hover (always on touch) that opens one shared `<dialog>` form prefilled with the photo's **print ID** — `<camera>-<NN>-<photo file stem>`, e.g. `olympus35sp-01-03` (the `printId` filter in `.eleventy.js`; also the photo's `id` anchor, so renaming photo files changes IDs). Visitor gives name, email, size. It posts to FormSubmit (`formsubmit.co/ajax/<to>`), which emails `src/_data/prints.json`'s `to` with the visitor as reply-to. Sizes offered live in that same file. The first-ever submission triggers a one-time FormSubmit activation email that must be clicked. The copyright/no-distribution notice appears in the form and the roll page footer.
 - `src/about.njk` — text above a full-bleed banner photo.
 - Real responsive images throughout via the `{% photo src, alt, sizes, sourcePage %}` shortcode (`.eleventy.js`) — wraps `@11ty/eleventy-img`. `sourcePage` is only needed when a page renders another page's image (e.g. a roll's hero shown on its camera page); omit it when a template renders its own front matter's image.
 
@@ -148,6 +156,7 @@ Two page shapes cover the whole site (see Information architecture) — everythi
 
 - `npm run dev` — local dev server with live reload (`eleventy --serve`), at `http://localhost:8080/`.
 - `npm run build` — build to `_site/`, then run `scripts/validate-content.js`.
+- `node scripts/prep-images.mjs camera|canister <photo> <name>` — turn a photo (plain light backdrop) into a camera etching or a film cut-out (transparent background); `etch-all` regenerates every camera etching. Run by hand, commit the output — not part of the build. Adding a camera: run `camera <photo> <slug>` and add `productImage`/`productCredit`/`productLicense`/`productSource` to its front matter (validate-content fails without the etching). Adding a canister photo: run `canister <photo> <stock-slug>` and add the slug (with a `label`) to `src/_data/canisters.json`. Photos of your own cameras/canisters on white beat the Wikimedia ones (and need no credit line).
 
 **Windows-specific note**: this repo lives inside a Google Drive–synced folder ("My Drive"), which turns out to be a cloud-projected filesystem, not a plain local one — `npm install` fails outright here (EPERM/EBADF), and Windows junctions/symlinks into the folder are rejected too ("Local NTFS volumes are required"). So on this machine, `node_modules` isn't installed in the repo at all — it lives in a separate plain folder, `C:\Users\jdcyin\Documents\seenalready-node_modules-build\` (its own throwaway `package.json`, not part of this repo). Both npm scripts run through `scripts/run-eleventy.mjs`, which resolves `@11ty/eleventy` normally first (so this is a no-op in CI/GitHub Actions, and for anyone working from a normal local clone) and only falls back to that external folder when the normal resolution comes up empty. If dependency versions change in this repo's `package.json`, re-run `npm install` inside that external folder too, using the same versions.
 
@@ -167,6 +176,6 @@ Do not reintroduce these, even incidentally:
 - An author/byline field, or any per-person concept. There is exactly one person behind this site and it isn't represented as content.
 - Film stock (or film format) as a headline or primary sort/nav key. Camera is primary; format and stock are browsing axes, always secondary in display.
 - Roll counts, stock counts, or any other tally shown on a Catalogue tile. Tiles are image + name, nothing else.
-- A newsletter/subscriber box, a "submit your photos" CTA, or any algorithmic "related"/"recommended" section. Pages show only what's actually there — nothing dynamic beyond that.
+- A newsletter/subscriber box, a "submit your photos" CTA, or any algorithmic "related"/"recommended" section. Pages show only what's actually there — nothing dynamic beyond that. (The per-photo "Order print" button on roll pages is the one deliberate exception — requested by the owner.)
 - Place-name captions on Catalogue tiles or Featured-template recent-grid cards. Captions belong on the roll detail page only.
 - Dropdown nav menus. Cameras/Film/About are plain links; browsing happens on real Catalogue pages, not in a nav flyout.

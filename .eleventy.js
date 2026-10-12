@@ -31,6 +31,9 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy('src/css');
   eleventyConfig.addPassthroughCopy('src/fonts');
   eleventyConfig.addPassthroughCopy('src/favicon.ico');
+  // Made by scripts/prep-images.mjs: camera line etchings and film-canister cut-outs.
+  eleventyConfig.addPassthroughCopy({ 'src/cameras/etch': 'img/etch' });
+  eleventyConfig.addPassthroughCopy({ 'src/film/canisters': 'img/canisters' });
 
   eleventyConfig.addFilter('formatDate', formatDate);
   eleventyConfig.addFilter('slugify', slugify);
@@ -44,7 +47,11 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter('arraySlice', (arr, start, end) => (arr || []).slice(start, end));
   eleventyConfig.addFilter('byFilmFormat', (posts, format) => (posts || []).filter((p) => p.data.filmFormat === format));
   eleventyConfig.addFilter('whereFormat', (stockList, format) => (stockList || []).filter((s) => s.format === format));
-  eleventyConfig.addFilter('year', (date) => new Date(date).getUTCFullYear());
+  // A photo's print ID: <camera>-<roll NN>-<photo file stem>, e.g. olympus35sp-01-03 for
+  // ./01/03.jpg in src/posts/olympus35sp/01.md. Stable as long as files aren't renamed.
+  eleventyConfig.addFilter('printId', (camera, number, src) =>
+    `${camera}-${String(number).padStart(2, '0')}-${path.basename(src, path.extname(src))}`);
+  eleventyConfig.addFilter('year',(date) => new Date(date).getUTCFullYear());
   // Distinct years across all posts, newest first — powers the /snapped/ year filter.
   eleventyConfig.addFilter('uniqueYears', (posts) => {
     const years = new Set((posts || []).map((p) => new Date(p.data.date).getUTCFullYear()));

@@ -1,0 +1,21 @@
+{#- One film tile: a canister/roll cut-out (src/film/canisters/<tile.image>.png) standing on a
+    pale plate, with a strip of film tucked behind it that slides out on hover — its frames are
+    the heroes of tile.rolls (newest first; up to 3). tile.wide is for the landscape 120 roll
+    photo. An include rather than a macro: Nunjucks macros can't call the async {% photo %}. -#}
+<a class="stocktile" href="{{ tile.href }}">
+  <div class="stocktile-stage">
+    <div class="canister{% if tile.wide %} canister-wide{% endif %}">
+      {% if tile.rolls.length %}
+        <div class="filmstrip-clip" aria-hidden="true">
+          <div class="filmstrip">
+            {% for roll in tile.rolls | arraySlice(0, 3) %}
+              <div class="filmstrip-frame">{% photo roll.data.hero, "", "120px", roll %}</div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+      <img class="canister-img" src="/img/canisters/{{ tile.image }}.png" alt="{{ tile.alt }}" loading="lazy" decoding="async">
+    </div>
+  </div>
+  <div class="tile-cap-main">{{ tile.label }}</div>
+</a>

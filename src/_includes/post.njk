@@ -16,14 +16,111 @@ eleventyComputed:
 
   <div class="photostack">
     {% for photo in photos %}
-      <div>
-        <div class="photoblock-img">{% photo photo.src, photo.caption %}</div>
+      {% set pid = camera | printId(number, photo.src) %}
+      <div id="{{ pid }}">
+        <div class="photoblock-img">
+          {% photo photo.src, photo.caption %}
+          <button class="order-print" type="button" data-print-id="{{ pid }}" data-caption="{{ photo.caption }}">Order print</button>
+        </div>
         <div class="caption">{{ photo.caption }}</div>
       </div>
     {% endfor %}
   </div>
 
   <div class="footer">
-    <div class="copy">© {{ currentYear }} Seen Already</div>
+    <div class="copy">© {{ currentYear }} Seen Already · No reuse without permission</div>
   </div>
 </div>
+
+{# One shared print-order dialog; each "Order print" button fills in its photo's ID.
+   Posts to FormSubmit, which emails prints.to with the visitor's address as reply-to —
+   see src/_data/prints.json. #}
+<dialog class="print-dialog" id="print-dialog" aria-labelledby="print-title">
+  <form class="print-form" id="print-form">
+    <button class="print-close" type="button" id="print-close" aria-label="Close">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 1l12 12M13 1 1 13"/></svg>
+    </button>
+    <div class="print-title" id="print-title">Order a print</div>
+    <div class="print-photo">
+      <span class="print-label">Photo</span>
+      <span class="print-id" id="print-id-display"></span>
+      <span class="print-caption" id="print-caption"></span>
+    </div>
+    <input type="hidden" name="photo" id="print-id">
+    <input type="hidden" name="page" value="https://seenalready.com{{ page.url }}">
+    <input type="hidden" name="_subject" id="print-subject" value="Print order">
+    <input type="hidden" name="_template" value="table">
+    <input type="text" name="_honey" class="print-honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <label class="print-field">
+      <span class="print-label">Name</span>
+      <input type="text" name="name" required autocomplete="name">
+    </label>
+    <label class="print-field">
+      <span class="print-label">Email</span>
+      <input type="email" name="email" required autocomplete="email">
+    </label>
+    <label class="print-field">
+      <span class="print-label">Size</span>
+      <span class="select-wrap">
+        <select name="size" required>
+          {% for size in prints.sizes %}<option>{{ size }}</option>{% endfor %}
+        </select>
+      </span>
+    </label>
+    <p class="print-note">I'll reply by email to sort out the details.</p>
+    <p class="print-disclaimer">© Seen Already. Not for reproduction or distribution without permission.</p>
+    <button class="feature-btn print-submit" type="submit">Send request</button>
+    <p class="print-status" id="print-status" role="status"></p>
+  </form>
+</dialog>
+
+<script>
+  (function () {
+    var dialog = document.getElementById('print-dialog');
+    var form = document.getElementById('print-form');
+    var status = document.getElementById('print-status');
+    var submit = form.querySelector('.print-submit');
+    var endpoint = 'https://formsubmit.co/ajax/{{ prints.to }}';
+
+    document.querySelectorAll('.order-print').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.dataset.printId;
+        document.getElementById('print-id').value = id;
+        document.getElementById('print-id-display').textContent = id;
+        document.getElementById('print-caption').textContent = btn.dataset.caption || '';
+        document.getElementById('print-subject').value = 'Print order: ' + id;
+        status.textContent = '';
+        submit.disabled = false;
+        form.hidden = false;
+        dialog.showModal();
+      });
+    });
+
+    document.getElementById('print-close').addEventListener('click', function () { dialog.close(); });
+    // Click on the backdrop (outside the form) closes it too.
+    dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      submit.disabled = true;
+      status.textContent = 'Sending…';
+      var data = {};
+      new FormData(form).forEach(function (v, k) { data[k] = v; });
+      fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(data),
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, body: j }; }); })
+        .then(function (res) {
+          if (!res.ok || String(res.body.success) !== 'true') throw new Error(res.body.message || 'failed');
+          status.textContent = 'Thanks — your request is in. I\'ll be in touch by email.';
+          form.reset();
+        })
+        .catch(function () {
+          submit.disabled = false;
+          status.textContent = 'Something went wrong sending that. Please email {{ prints.to }} directly with the photo ID.';
+        });
+    });
+  })();
+</script>

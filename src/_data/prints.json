@@ -1,0 +1,5 @@
+{
+  "_comment": "Print-order form on roll pages. Submissions go through FormSubmit (formsubmit.co) as an email to `to`; the visitor's address is set as reply-to. The very first submission triggers a one-time activation email to `to` — click it once. After activation FormSubmit offers a random alias string you can put in `to` instead, so the real address isn't in the page source. Add sizes to `sizes` as you offer them.",
+  "to": "jy@seenalready.com",
+  "sizes": ["4×6 in"]
+}
