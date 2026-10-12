@@ -108,6 +108,10 @@ eleventyComputed:
       new FormData(form).forEach(function (v, k) { data[k] = v; });
       fetch(endpoint, {
         method: 'POST',
+        // FormSubmit treats each referring URL as a separate form needing its own activation.
+        // Sending only the origin makes every roll page the same form — activate once. (The
+        // actual page is still in the `page` field.)
+        referrerPolicy: 'origin',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(data),
       })
