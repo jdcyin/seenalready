@@ -3,13 +3,11 @@ layout: base.njk
 title: "seenalready: About"
 permalink: /about/
 ---
-{% set banner = (collections.posts | sort(attribute="data.date", reverse=true))[0] %}
 <div class="body" style="padding-bottom: 0;">
   <div class="pagelabel">About</div>
   <div class="about-text">
     <p>A film photo collection.</p>
   </div>
 </div>
-{% if banner %}
-  <div class="about-banner">{% photo banner.data.hero, "Seen Already", "100vw", banner %}</div>
-{% endif %}
+{# A fixed pick (rainy fruit stall, Hong Kong — Pentax K1000 roll 04), not the latest roll. #}
+<div class="about-banner">{% photo "./posts/pentaxk1000/04/07.jpg", "Seen Already", "100vw" %}</div>
