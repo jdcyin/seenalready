@@ -6,12 +6,14 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 // See "Date display format" in CLAUDE.md — this is the one place the formatting logic lives.
 function formatDate(date, endDate) {
   const start = new Date(date);
-  const sM = MONTHS[start.getUTCMonth()], sD = start.getUTCDate(), sY = start.getUTCFullYear();
+  // Days are always two digits ("Aug 08"), so dates line up as a log.
+  const dd = (d) => String(d.getUTCDate()).padStart(2, '0');
+  const sM = MONTHS[start.getUTCMonth()], sD = dd(start), sY = start.getUTCFullYear();
 
   if (!endDate) return `${sM} ${sD}, ${sY}`;
 
   const end = new Date(endDate);
-  const eM = MONTHS[end.getUTCMonth()], eD = end.getUTCDate(), eY = end.getUTCFullYear();
+  const eM = MONTHS[end.getUTCMonth()], eD = dd(end), eY = end.getUTCFullYear();
 
   if (sY !== eY) return `${sM} ${sD}, ${sY} – ${eM} ${eD}, ${eY}`;
   if (sM !== eM) return `${sM} ${sD} – ${eM} ${eD}, ${eY}`;
