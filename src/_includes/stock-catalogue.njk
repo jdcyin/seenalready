@@ -1,0 +1,41 @@
+{#- Film-stock catalogue for /film/<format>/ — expects `format` ("35mm" | "120mm").
+    Three across, each tile the stock's latest roll hero; a Brand dropdown (filmBrand filter in
+    .eleventy.js) hides the other brands' tiles client-side, like the /snapped/ filters. -#}
+{% set stocks = collections.filmStockList | whereFormat(format) %}
+{% if stocks.length %}
+  {% set brands = stocks | filmBrands %}
+  {% if brands.length > 1 %}
+    <div class="filterbar">
+      <div class="filter">
+        <label for="filter-brand">Brand</label>
+        <div class="select-wrap">
+          <select id="filter-brand">
+            <option value="">All</option>
+            {% for brand in brands %}<option value="{{ brand }}">{{ brand }}</option>{% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="cataloguegrid cataloguegrid-3" id="stock-grid">
+    {% for stock in stocks | sort(attribute="filmStock") %}
+      {% set top = stock.posts | sort(attribute="data.date", reverse=true) %}
+      <a class="tile" href="/film/{{ format }}/{{ stock.stockSlug }}/" data-brand="{{ stock.filmStock | filmBrand }}">
+        <div class="tile-img vign">{% photo top[0].data.hero, stock.filmStock, "(max-width: 720px) 90vw, 300px", top[0] %}</div>
+        <div class="tile-cap-main">{{ stock.filmStock }}</div>
+      </a>
+    {% endfor %}
+  </div>
+  <script>
+    (function () {
+      var sel = document.getElementById('filter-brand');
+      if (!sel) return;
+      var tiles = document.querySelectorAll('#stock-grid .tile');
+      sel.addEventListener('change', function () {
+        tiles.forEach(function (t) { t.style.display = !sel.value || t.dataset.brand === sel.value ? '' : 'none'; });
+      });
+    })();
+  </script>
+{% else %}
+  <div class="empty">No rolls yet.</div>
+{% endif %}

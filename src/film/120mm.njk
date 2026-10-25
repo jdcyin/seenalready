@@ -4,22 +4,10 @@ title: "seenalready: 120mm"
 permalink: /film/120mm/
 activeNav: film
 ---
-{% set stocks120 = collections.filmStockList | whereFormat("120mm") %}
+{% set format = "120mm" %}
 <div class="body">
   <div class="pagelabel">120mm</div>
-  {% if stocks120.length %}
-    <div class="cataloguegrid">
-      {% for stock in stocks120 %}
-        {% set top = stock.posts | sort(attribute="data.date", reverse=true) %}
-        <a class="tile" href="/film/120mm/{{ stock.stockSlug }}/">
-          <div class="tile-img vign">{% photo top[0].data.hero, stock.filmStock, "25vw", top[0] %}</div>
-          <div class="tile-cap-main">{{ stock.filmStock }}</div>
-        </a>
-      {% endfor %}
-    </div>
-  {% else %}
-    <div class="empty">No rolls yet.</div>
-  {% endif %}
+  {% include "stock-catalogue.njk" %}
   <div class="footer">
     <a class="archive-link" href="/snapped/">SNAPPED</a>
     <div class="copy">© {{ copyrightYears }} Seen Already</div>

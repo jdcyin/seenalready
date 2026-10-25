@@ -271,18 +271,11 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
   justify-self: center;
   width: calc(50% - 18px);
 }
-/* /snapped/ specifically: 3 columns across a wider column, since it's the whole archive
-   rather than a handful of cameras/formats. */
-.cataloguegrid.cataloguegrid-3 { grid-template-columns: repeat(3, 1fr); max-width: 900px; }
-/* Undo the 2-column "lone odd tile" rule above entirely — an odd count isn't a lone tile in a
-   3-column grid (e.g. 33 rolls = 11 full rows). Only resetting width left grid-column 1 / -1
-   in place, so the last tile stretched across the whole bottom row. */
-.cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(odd) { grid-column: auto; justify-self: stretch; width: auto; }
-.cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(3n+1) {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: calc(33.333% - 24px);
-}
+/* 3-across variant (/snapped/, /film/<format>/): flex-wrap rather than grid, so a short last
+   row — including one left by a filter hiding tiles — is centered automatically, with no
+   :last-child / :nth-child counting (which also counts tiles a filter has hidden). */
+.cataloguegrid.cataloguegrid-3 { display: flex; flex-wrap: wrap; justify-content: center; max-width: 900px; }
+.cataloguegrid.cataloguegrid-3 .tile { flex: 0 0 calc((100% - 72px) / 3); }
 .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 20px 0 10px; }
 
 /* Catalogue tiles for /camera/ (line etchings made by scripts/prep-images.mjs) and the film pages,
@@ -444,8 +437,8 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
   .feature-img { flex-basis: auto; }
   .grid { grid-template-columns: repeat(2, 1fr); }
   .cataloguegrid, .cataloguegrid.cataloguegrid-3 { grid-template-columns: 1fr; max-width: 320px; }
-  .cataloguegrid .tile:last-child:nth-child(odd),
-  .cataloguegrid.cataloguegrid-3 .tile:last-child:nth-child(3n+1) { width: 100%; }
+  .cataloguegrid .tile:last-child:nth-child(odd) { width: 100%; }
+  .cataloguegrid.cataloguegrid-3 .tile { flex-basis: 100%; }
   .logo { font-size: 38px; }
   .etchtile, .stocktile { flex-basis: 100%; max-width: 320px; }
 }

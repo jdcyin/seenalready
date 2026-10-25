@@ -53,7 +53,17 @@ module.exports = function (eleventyConfig) {
   // ./01/03.jpg in src/posts/olympus35sp/01.md. Stable as long as files aren't renamed.
   eleventyConfig.addFilter('printId', (camera, number, src) =>
     `${camera}-${String(number).padStart(2, '0')}-${path.basename(src, path.extname(src))}`);
-  eleventyConfig.addFilter('year',(date) => new Date(date).getUTCFullYear());
+  // A film stock's brand, for the /film/<format>/ brand filter: its first word, with product
+  // lines folded into their maker ("Kodacolor 200" → Kodak).
+  const BRAND_ALIASES = { Kodacolor: 'Kodak' };
+  const filmBrand = (stock) => {
+    const first = String(stock).trim().split(/\s+/)[0];
+    return BRAND_ALIASES[first] || first;
+  };
+  eleventyConfig.addFilter('filmBrand', filmBrand);
+  eleventyConfig.addFilter('filmBrands', (stockList) =>
+    [...new Set((stockList || []).map((s) => filmBrand(s.filmStock)))].sort());
+  eleventyConfig.addFilter('year', (date) => new Date(date).getUTCFullYear());
   // Distinct years across all posts, newest first — powers the /snapped/ year filter.
   eleventyConfig.addFilter('uniqueYears', (posts) => {
     const years = new Set((posts || []).map((p) => new Date(p.data.date).getUTCFullYear()));
