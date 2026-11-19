@@ -12,7 +12,7 @@ activeNav: film
       {% set rolls = collections.posts | byFilmFormat(format) | sort(attribute="data.date", reverse=true) %}
       <a class="tile" href="/film/{{ format }}/">
         <div class="tile-img vign">
-          {% if rolls.length %}{% photo rolls[0].data.hero, format, "25vw", rolls[0] %}{% endif %}
+          {% if rolls.length %}{% photo rolls[0].data.hero, format, "(max-width: 720px) 320px, 310px", rolls[0] %}{% endif %}
         </div>
         <div class="tile-cap-main">{{ format }}</div>
       </a>

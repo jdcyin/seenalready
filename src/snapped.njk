@@ -49,7 +49,7 @@ permalink: /snapped/
     <div class="cataloguegrid cataloguegrid-3" id="snapped-grid">
       {% for roll in rolls %}
         <a class="tile" href="{{ roll.url }}" data-camera="{{ roll.data.camera }}" data-film-format="{{ roll.data.filmFormat }}" data-year="{{ roll.data.date | year }}">
-          <div class="tile-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "25vw", roll %}</div>
+          <div class="tile-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "(max-width: 720px) 320px, 280px", roll %}</div>
           <div class="tile-cap-main">{{ roll.data.date | formatDate(roll.data.endDate) }}</div>
         </a>
       {% endfor %}

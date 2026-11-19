@@ -74,8 +74,11 @@ module.exports = function (eleventyConfig) {
   // (same file repeated at every width descriptor). `sourcePage` is only needed when
   // rendering another page's image (e.g. a post's hero shown on its camera page) — it
   // defaults to the current page, since `src` is always relative to wherever the front
-  // matter that names it actually lives.
-  eleventyConfig.addAsyncShortcode('photo', async function (src, alt, sizes = '100vw', sourcePage) {
+  // matter that names it actually lives (pass `null` to skip it when giving `priority`).
+  // `priority`: for the one photo already on screen when the page opens (a roll's first
+  // photo, a Featured page's lead image) — loads immediately at high priority instead of
+  // lazily, so the first thing a visitor sees isn't left waiting.
+  eleventyConfig.addAsyncShortcode('photo', async function (src, alt, sizes = '100vw', sourcePage, priority = false) {
     const base = (sourcePage || this.page).inputPath;
     const inputPath = path.join(base, '..', src);
     const metadata = await Image(inputPath, {
@@ -87,8 +90,9 @@ module.exports = function (eleventyConfig) {
     return Image.generateHTML(metadata, {
       alt,
       sizes,
-      loading: 'lazy',
+      loading: priority ? 'eager' : 'lazy',
       decoding: 'async',
+      ...(priority && { fetchpriority: 'high' }),
     });
   });
 

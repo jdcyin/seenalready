@@ -19,7 +19,7 @@ eleventyComputed:
       {% set pid = camera | printId(number, photo.src) %}
       <div id="{{ pid }}">
         <div class="photoblock-img">
-          {% photo photo.src, photo.caption %}
+          {% photo photo.src, photo.caption, "(max-width: 720px) calc(100vw - 48px), (max-width: 872px) calc(100vw - 112px), 760px", null, loop.first %}
           <button class="order-print" type="button" data-print-id="{{ pid }}" data-caption="{{ photo.caption }}">Order print</button>
         </div>
         <div class="caption">{{ photo.caption }}</div>
