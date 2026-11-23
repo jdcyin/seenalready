@@ -380,7 +380,20 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
 .photoblock-img:hover .order-print, .order-print:focus-visible { opacity: 1; transform: none; }
 .order-print:hover { color: var(--red); border-color: var(--red); }
 @media (hover: none) {
-  .order-print { opacity: 0.92; transform: none; }
+  /* Always visible on touch (no hover), so keep it light: a small frosted, see-through chip
+     rather than a solid block over the corner of the photo. */
+  .order-print {
+    opacity: 1;
+    transform: none;
+    right: 8px;
+    bottom: 8px;
+    font-size: 11px;
+    padding: 5px 9px;
+    background: color-mix(in oklch, var(--bg) 45%, transparent);
+    border-color: color-mix(in oklch, var(--fg) 40%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
 }
 
 .print-dialog { width: calc(100% - 32px); max-width: 420px; padding: 0; border: 2px solid var(--border); background: var(--bg); color: var(--fg); }
@@ -435,7 +448,7 @@ a:hover .vign::after, a.vign:hover::after { opacity: 1; }
   .hdr-full, .hdr-compact, .body, .body-featured { padding-left: 24px; padding-right: 24px; }
   .feature { flex-direction: column; }
   .feature-img { flex-basis: auto; }
-  .grid { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: 1fr; }
   .cataloguegrid, .cataloguegrid.cataloguegrid-3 { grid-template-columns: 1fr; max-width: 320px; }
   .cataloguegrid .tile:last-child:nth-child(odd) { width: 100%; }
   .cataloguegrid.cataloguegrid-3 .tile { flex-basis: 100%; }

@@ -28,7 +28,7 @@ eleventyComputed:
       <div class="grid">
         {% for roll in rolls | arraySlice(1, 4) %}
           <a class="card" href="{{ roll.url }}">
-            <div class="card-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "(max-width: 720px) calc(50vw - 37px), (max-width: 1250px) calc(33vw - 55px), 362px", roll %}</div>
+            <div class="card-img vign">{% photo roll.data.hero, roll.data.date | formatDate(roll.data.endDate), "(max-width: 720px) calc(100vw - 48px), (max-width: 1250px) calc(33vw - 55px), 362px", roll %}</div>
             <div class="card-cap">
               <div class="card-date">{{ roll.data.date | formatDate(roll.data.endDate) }}</div>
             </div>
